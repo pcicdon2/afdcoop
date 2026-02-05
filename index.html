@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFD Cooperative</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h2>AFD Co-op</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#ledger">Loan Application</a></li>
+                <li><a href="#payment">Payment</a></li>
+                <li><a href="#membership">Membership</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#" class="btn-login">Member Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Community-Driven Lending Solutions</h1>
+            <p>Join our cooperative and access fair, transparent lending with competitive rates. Built by the community, for the community.</p>
+            <div class="hero-buttons">
+                <a href="#membership" class="btn btn-primary">Become a Member</a>
+                <a href="#ledger" class="btn btn-secondary">Apply for Loan</a>
+            </div>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <h3>₱125M+</h3>
+                <p>Loans Disbursed</p>
+            </div>
+            <div class="stat">
+                <h3>850+</h3>
+                <p>Active Members</p>
+            </div>
+            <div class="stat">
+                <h3>4.8%</h3>
+                <p>Average Interest Rate</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loan Application Section -->
+    <section id="ledger" class="ledger">
+        <div class="container">
+            <h2>Loan Application</h2>
+            <p class="ledger-description">Apply for loans with simple interest calculation - Total Interest = Principal × Interest Rate</p>
+            
+            <div class="amortization-calculator">
+                <div class="calculator-inputs">
+                    <h3>Loan Application</h3>
+                    <div class="input-group">
+                        <label for="transactionId">Transaction ID</label>
+                        <input type="text" id="transactionId" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label for="borrowerName">Borrower Name</label>
+                        <input type="text" id="borrowerName" placeholder="Enter full name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="transactionDate">Date of Transaction</label>
+                        <input type="date" id="transactionDate" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="loanAmount">Amount Borrowed (₱)</label>
+                        <input type="number" id="loanAmount" placeholder="250000" min="1000" step="1000" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="interestRate">Interest Rate (% of Principal)</label>
+                        <input type="number" id="interestRate" placeholder="5.0" min="0.1" max="50" step="0.1" required>
+                    </div>
+                    <div class="button-group">
+                        <button onclick="newApplication()" class="btn btn-outline">New Application</button>
+                        <button onclick="calculateAmortization()" class="btn btn-primary">Calculate Loan</button>
+                        <button onclick="saveLoanRecord()" class="btn btn-success" id="saveBtn" style="display: none;">Save Loan Record</button>
+                    </div>
+                </div>
+                
+                <div class="payment-summary" id="paymentSummary" style="display: none;">
+                    <h3>Loan Summary</h3>
+                    <div class="calculation-method">
+                        <span class="method-label">Calculation Method:</span>
+                        <span class="method-value">Simple Interest</span>
+                        <div class="method-explanation" style="font-size: 0.875rem; color: #0369a1; margin-top: 0.5rem; font-weight: 500;">
+                            Total Interest = Principal × Interest Rate. Total Amount = Principal + Interest.
+                        </div>
+                    </div>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="label">Total Interest:</span>
+                            <span class="value" id="totalInterest">₱0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Total Amount:</span>
+                            <span class="value" id="totalAmount">₱0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Saved Loan Records -->
+            <div class="loan-records-section">
+                <div class="records-header">
+                    <h3>Loan Records Database</h3>
+                    <div class="search-controls">
+                        <input type="text" id="searchInput" placeholder="Search by name or transaction ID..." onkeyup="searchRecords()">
+                        <button onclick="exportRecords()" class="btn btn-outline">Export CSV</button>
+                        <button onclick="clearDatabase()" class="btn btn-danger">Clear All</button>
+                    </div>
+                </div>
+                <div class="records-table-wrapper">
+                    <table class="records-table" id="recordsTable">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Borrower Name</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Interest Rate</th>
+                                <th>Total Interest</th>
+                                <th>Total Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Section -->
+    <section id="payment" class="payment">
+        <div class="container">
+            <h2>Payment Management</h2>
+            <p class="payment-description">Search for borrowers and manage their loan payments</p>
+            
+            <div class="payment-search">
+                <div class="search-container">
+                    <div class="search-header">
+                        <h3>Search Borrower</h3>
+                        <button onclick="generateAllBorrowersReport()" class="btn btn-success">Generate All Borrowers Report</button>
+                    </div>
+                    <div class="search-form">
+                        <div class="search-input-group">
+                            <input type="text" id="borrowerSearch" placeholder="Enter borrower name or transaction ID..." onkeyup="searchBorrower()">
+                            <button onclick="searchBorrower()" class="btn btn-primary">Search</button>
+                        </div>
+                    </div>
+                    <div id="searchResults" class="search-results" style="display: none;">
+                        <h4>Search Results</h4>
+                        <div id="borrowerList" class="borrower-list"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loan Details Display -->
+            <div id="loanDetails" class="loan-details" style="display: none;">
+                <div class="loan-info-card">
+                    <h3>Loan Information</h3>
+                    <div class="loan-info-grid">
+                        <div class="info-item">
+                            <span class="label">Transaction ID:</span>
+                            <span class="value" id="displayTransactionId">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Borrower Name:</span>
+                            <span class="value" id="displayBorrowerName">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Principal Amount:</span>
+                            <span class="value" id="displayLoanAmount">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Total Amount (Principal + Interest):</span>
+                            <span class="value" id="displayTotalAmount">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Interest Rate:</span>
+                            <span class="value" id="displayInterestRate">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Status -->
+                <div class="payment-status-card">
+                    <h3>Payment Status</h3>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="status-number" id="totalPaid">₱0</span>
+                            <span class="status-label">Total Paid</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-number" id="remainingBalance">₱0</span>
+                            <span class="status-label">New Balance</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-number" id="interestAmount">₱0</span>
+                            <span class="status-label">Interest Amount</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-number" id="totalNewBalance">₱0</span>
+                            <span class="status-label">Total New Balance</span>
+                        </div>
+                        <div class="status-item due-date-item">
+                            <div class="due-date-display">
+                                <span class="status-number" id="paymentDueDate">-</span>
+                                <span class="status-label">Payment Due Date</span>
+                            </div>
+                            <div class="due-date-actions">
+                                <button onclick="editDueDate()" class="btn btn-sm btn-outline">Edit</button>
+                                <button onclick="clearDueDate()" class="btn btn-sm btn-outline">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Form -->
+            <div id="paymentForm" class="payment-form-section" style="display: none;">
+                <div class="payment-form-card">
+                    <h3>Record Payment</h3>
+                    <div class="payment-form">
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="paymentDate">Payment Date</label>
+                                <input type="date" id="paymentDate" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="paymentAmount">Payment Amount (₱)</label>
+                                <input type="number" id="paymentAmount" placeholder="Enter amount" min="1" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="paymentMethod">Payment Method</label>
+                                <select id="paymentMethod" required>
+                                    <option value="">Select payment method</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="gcash">GCash</option>
+                                    <option value="paymaya">PayMaya</option>
+                                    <option value="check">Check</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="paymentReference">Reference Number (Optional)</label>
+                                <input type="text" id="paymentReference" placeholder="Reference/Receipt number">
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button onclick="recordPayment()" class="btn btn-success">Record Payment</button>
+                            <button onclick="clearPaymentForm()" class="btn btn-outline">Clear Form</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment History -->
+            <div id="paymentHistory" class="payment-history-section" style="display: none;">
+                <div class="payment-history-card">
+                    <div class="history-header">
+                        <h3>Payment History</h3>
+                        <button onclick="generatePaymentSummary()" class="btn btn-outline">Generate Payment Summary</button>
+                    </div>
+                    <div class="history-table-wrapper">
+                        <table class="payment-history-table">
+                            <thead>
+                                <tr>
+                                    <th>Payment #</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Reference</th>
+                                    <th>Balance After</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentHistoryBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Summary Modal -->
+            <div id="paymentSummaryModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Payment Summary Report</h3>
+                        <button onclick="closePaymentSummary()" class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body" id="paymentSummaryContent">
+                        <!-- Summary content will be generated here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="printPaymentSummary()" class="btn btn-primary">Print Summary</button>
+                        <button onclick="exportPaymentSummary()" class="btn btn-success">Export PDF</button>
+                        <button onclick="closePaymentSummary()" class="btn btn-outline">Close</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- All Borrowers Report Modal -->
+            <div id="allBorrowersModal" class="modal" style="display: none;">
+                <div class="modal-content large-modal">
+                    <div class="modal-header">
+                        <h3>All Borrowers Loan Status Report</h3>
+                        <button onclick="closeAllBorrowersReport()" class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body" id="allBorrowersContent">
+                        <!-- All borrowers report content will be generated here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="printAllBorrowersReport()" class="btn btn-primary">Print Report</button>
+                        <button onclick="exportAllBorrowersReport()" class="btn btn-success">Export CSV</button>
+                        <button onclick="closeAllBorrowersReport()" class="btn btn-outline">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Edit Due Date Modal -->
+    <div id="editDueDateModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Payment Due Date</h3>
+                <button onclick="closeDueDateModal()" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="newDueDate">Payment Due Date</label>
+                    <input type="date" id="newDueDate" required>
+                </div>
+                <div class="input-group">
+                    <label for="dueDateNotes">Notes (Optional)</label>
+                    <textarea id="dueDateNotes" placeholder="Add any notes about this due date..." rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveDueDate()" class="btn btn-primary">Save Due Date</button>
+                <button onclick="closeDueDateModal()" class="btn btn-outline">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membership Section -->
+    <section id="membership" class="membership">
+        <div class="container">
+            <h2>Member Management</h2>
+            <p class="membership-description">Register new members and manage existing membership records</p>
+            
+            <div class="membership-management">
+                <div class="member-registration">
+                    <h3>New Member Registration</h3>
+                    <div class="registration-form">
+                        <div class="input-group">
+                            <label for="memberId">Member ID</label>
+                            <input type="text" id="memberId" readonly>
+                        </div>
+                        <div class="input-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" placeholder="Enter full name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="capital">Capital (₱)</label>
+                            <input type="number" id="capital" placeholder="Enter capital amount" min="100" step="50" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="dateAdded">Date Added</label>
+                            <input type="date" id="dateAdded" required>
+                        </div>
+                        <div class="button-group">
+                            <button onclick="newMemberForm()" class="btn btn-outline">New Member</button>
+                            <button onclick="addMember()" class="btn btn-primary">Add Member</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="member-summary" id="memberSummary">
+                    <h3>Membership Summary</h3>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalMembers">0</span>
+                            <span class="stat-label">Total Members</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalCapital">₱0</span>
+                            <span class="stat-label">Total Capital</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="avgCapital">₱0</span>
+                            <span class="stat-label">Average Capital</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Member Records -->
+            <div class="member-records-section">
+                <div class="records-header">
+                    <h3>Member Records Database</h3>
+                    <div class="search-controls">
+                        <input type="text" id="memberSearchInput" placeholder="Search by name or member ID..." onkeyup="searchMembers()">
+                        <button onclick="exportMembers()" class="btn btn-outline">Export CSV</button>
+                        <button onclick="clearMemberDatabase()" class="btn btn-danger">Clear All</button>
+                    </div>
+                </div>
+                <div class="records-table-wrapper">
+                    <table class="records-table" id="membersTable">
+                        <thead>
+                            <tr>
+                                <th>Member ID</th>
+                                <th>Full Name</th>
+                                <th>Capital</th>
+                                <th>Date Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2>Get in Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <h4>Visit Us</h4>
+                        <p>123 Community Street<br>Your City, State 12345</p>
+                    </div>
+                    <div class="contact-item">
+                        <h4>Call Us</h4>
+                        <p>(555) 123-4567</p>
+                    </div>
+                    <div class="contact-item">
+                        <h4>Email Us</h4>
+                        <p>info@unitylendingcoop.com</p>
+                    </div>
+                    <div class="contact-item">
+                        <h4>Hours</h4>
+                        <p>Mon-Fri: 9AM-6PM<br>Sat: 9AM-2PM</p>
+                    </div>
+                </div>
+                <form class="contact-form">
+                    <input type="text" placeholder="Your Name" required>
+                    <input type="email" placeholder="Your Email" required>
+                    <select required>
+                        <option value="">Select Service Interest</option>
+                        <option value="home">Home Loan</option>
+                        <option value="auto">Auto Loan</option>
+                        <option value="business">Business Loan</option>
+                        <option value="education">Education Loan</option>
+                        <option value="membership">Membership Info</option>
+                    </select>
+                    <textarea placeholder="Your Message" rows="4" required></textarea>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>AFD COOP</h4>
+                    <p>Building stronger communities through cooperative lending.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#ledger">Loan Application</a></li>
+                        <li><a href="#payment">Payment</a></li>
+                        <li><a href="#membership">Membership</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Loan Disclosures</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Unity Lending Cooperative. All rights reserved. NCUA Insured.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentLoanData = null;
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            generateTransactionId();
+            setCurrentDate();
+            loadLoanRecords();
+            generateMemberId();
+            setMemberDate();
+            loadMemberRecords();
+            updateMemberSummary();
+            setPaymentDate();
+        });
+        
+        // Generate unique transaction ID
+        function generateTransactionId() {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 1000);
+            const transactionId = 'TXN' + timestamp.toString().slice(-8) + random.toString().padStart(3, '0');
+            document.getElementById('transactionId').value = transactionId;
+        }
+        
+        // Set current date
+        function setCurrentDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transactionDate').value = today;
+        }
+        
+        // New Application function
+        function newApplication() {
+            // Clear all form fields
+            document.getElementById('borrowerName').value = '';
+            document.getElementById('loanAmount').value = '';
+            document.getElementById('interestRate').value = '';
+            
+            // Generate new transaction ID and set current date
+            generateTransactionId();
+            setCurrentDate();
+            
+            // Hide summary sections
+            document.getElementById('paymentSummary').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'none';
+            
+            // Clear current loan data
+            currentLoanData = null;
+            
+            // Focus on borrower name field for easy data entry
+            document.getElementById('borrowerName').focus();
+            
+            // Show confirmation message
+            showNotification('New application form ready', 'success');
+        }
+        
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove existing notification if any
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+        
+        function calculateAmortization() {
+            const borrowerName = document.getElementById('borrowerName').value.trim();
+            const transactionDate = document.getElementById('transactionDate').value;
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100; // Interest rate as decimal
+            
+            if (!borrowerName || !transactionDate || !loanAmount || !interestRate) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Simple Interest Calculation Method
+            // Total Interest = Principal × Interest Rate
+            // Total Amount = Principal + Interest
+            
+            const totalInterest = loanAmount * interestRate;
+            const totalAmount = loanAmount + totalInterest;
+            
+            // Store current loan data
+            currentLoanData = {
+                transactionId: document.getElementById('transactionId').value,
+                borrowerName: borrowerName,
+                transactionDate: transactionDate,
+                loanAmount: loanAmount,
+                interestRate: interestRate * 100, // Store as percentage
+                totalInterest: totalInterest,
+                totalAmount: totalAmount,
+                calculationMethod: 'Simple Interest'
+            };
+            
+            // Update summary
+            document.getElementById('totalInterest').textContent = '₱' + totalInterest.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('totalAmount').textContent = '₱' + totalAmount.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            // Show summary and save button
+            document.getElementById('paymentSummary').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'inline-block';
+        }
+        
+        function saveLoanRecord() {
+            if (!currentLoanData) {
+                alert('Please calculate the loan first');
+                return;
+            }
+            
+            // Get existing records from localStorage
+            let loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            
+            // Check if transaction ID already exists
+            const existingRecord = loanRecords.find(record => record.transactionId === currentLoanData.transactionId);
+            if (existingRecord) {
+                if (!confirm('A record with this Transaction ID already exists. Do you want to update it?')) {
+                    return;
+                }
+                // Update existing record
+                const index = loanRecords.findIndex(record => record.transactionId === currentLoanData.transactionId);
+                loanRecords[index] = currentLoanData;
+            } else {
+                // Add new record
+                loanRecords.push(currentLoanData);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('loanRecords', JSON.stringify(loanRecords));
+            
+            showNotification('Loan record saved successfully!', 'success');
+            
+            // Refresh the records table
+            loadLoanRecords();
+            
+            // Automatically start new application
+            newApplication();
+        }
+        
+        function loadLoanRecords() {
+            const loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            const tbody = document.getElementById('recordsTableBody');
+            tbody.innerHTML = '';
+            
+            loanRecords.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.transactionId}</td>
+                    <td>${record.borrowerName}</td>
+                    <td>${new Date(record.transactionDate).toLocaleDateString()}</td>
+                    <td>₱${record.loanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                    <td>${record.interestRate.toFixed(2)}%</td>
+                    <td>₱${record.totalInterest.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                    <td>₱${record.totalAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                    <td>
+                        <button onclick="viewRecord('${record.transactionId}')" class="btn btn-sm btn-outline">View</button>
+                        <button onclick="deleteRecord('${record.transactionId}')" class="btn btn-sm btn-danger">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function viewRecord(transactionId) {
+            const loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            const record = loanRecords.find(r => r.transactionId === transactionId);
+            
+            if (record) {
+                // Populate form with record data
+                document.getElementById('transactionId').value = record.transactionId;
+                document.getElementById('borrowerName').value = record.borrowerName;
+                document.getElementById('transactionDate').value = record.transactionDate;
+                document.getElementById('loanAmount').value = record.loanAmount;
+                document.getElementById('interestRate').value = record.interestRate;
+                
+                // Set current loan data
+                currentLoanData = record;
+                
+                // Update summary
+                document.getElementById('totalInterest').textContent = '₱' + record.totalInterest.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('totalAmount').textContent = '₱' + record.totalAmount.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                
+                // Show summary
+                document.getElementById('paymentSummary').style.display = 'block';
+                document.getElementById('saveBtn').style.display = 'inline-block';
+                
+                // Scroll to calculator
+                document.getElementById('ledger').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        function deleteRecord(transactionId) {
+            if (confirm('Are you sure you want to delete this loan record?')) {
+                let loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+                loanRecords = loanRecords.filter(record => record.transactionId !== transactionId);
+                localStorage.setItem('loanRecords', JSON.stringify(loanRecords));
+                loadLoanRecords();
+                showNotification('Record deleted successfully!', 'success');
+            }
+        }
+        
+        function searchRecords() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#recordsTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        function exportRecords() {
+            const loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            
+            if (loanRecords.length === 0) {
+                showNotification('No records to export', 'warning');
+                return;
+            }
+            
+            // Create CSV content
+            const headers = ['Transaction ID', 'Borrower Name', 'Date', 'Amount', 'Interest Rate', 'Total Interest', 'Total Amount'];
+            const csvContent = [
+                headers.join(','),
+                ...loanRecords.map(record => [
+                    record.transactionId,
+                    `"${record.borrowerName}"`,
+                    record.transactionDate,
+                    record.loanAmount,
+                    record.interestRate,
+                    record.totalInterest.toFixed(2),
+                    record.totalAmount.toFixed(2)
+                ].join(','))
+            ].join('\n');
+            
+            // Download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'loan_records_' + new Date().toISOString().split('T')[0] + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('Records exported successfully!', 'success');
+        }
+        
+        // Payment Calculator Function
+        function calculatePaymentTotal() {
+            const paymentAmount = parseFloat(document.getElementById('paymentAmount').value) || 0;
+            const processingFee = parseFloat(document.getElementById('processingFee').value) || 0;
+            
+            if (paymentAmount <= 0) {
+                showNotification('Please enter a valid payment amount', 'warning');
+                return;
+            }
+            
+            const totalAmount = paymentAmount + processingFee;
+            
+            // Update result display
+            document.getElementById('resultAmount').textContent = '₱' + paymentAmount.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('resultFee').textContent = '₱' + processingFee.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('resultTotal').textContent = '₱' + totalAmount.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            
+            // Show result
+            document.getElementById('paymentResult').style.display = 'block';
+        }
+        
+        // Member Management Functions
+        
+        // Generate unique member ID
+        function generateMemberId() {
+            const timestamp = Date.now();
+            const random = Math.floor(Math.random() * 100);
+            const memberId = 'MEM' + timestamp.toString().slice(-6) + random.toString().padStart(2, '0');
+            document.getElementById('memberId').value = memberId;
+        }
+        
+        // Set current date for member registration
+        function setMemberDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateAdded').value = today;
+        }
+        
+        // New member form reset
+        function newMemberForm() {
+            document.getElementById('fullName').value = '';
+            document.getElementById('capital').value = '';
+            generateMemberId();
+            setMemberDate();
+            document.getElementById('fullName').focus();
+            showNotification('New member form ready', 'success');
+        }
+        
+        // Add new member
+        function addMember() {
+            const memberId = document.getElementById('memberId').value;
+            const fullName = document.getElementById('fullName').value.trim();
+            const capital = parseFloat(document.getElementById('capital').value);
+            const dateAdded = document.getElementById('dateAdded').value;
+            
+            if (!fullName || !capital || !dateAdded) {
+                showNotification('Please fill in all fields', 'warning');
+                return;
+            }
+            
+            if (capital < 100) {
+                showNotification('Minimum capital is ₱100', 'warning');
+                return;
+            }
+            
+            // Get existing members from localStorage
+            let memberRecords = JSON.parse(localStorage.getItem('memberRecords')) || [];
+            
+            // Check if member ID already exists
+            const existingMember = memberRecords.find(member => member.memberId === memberId);
+            if (existingMember) {
+                if (!confirm('A member with this ID already exists. Do you want to update it?')) {
+                    return;
+                }
+                // Update existing member
+                const index = memberRecords.findIndex(member => member.memberId === memberId);
+                memberRecords[index] = {
+                    memberId: memberId,
+                    fullName: fullName,
+                    capital: capital,
+                    dateAdded: dateAdded,
+                    dateUpdated: new Date().toISOString().split('T')[0]
+                };
+            } else {
+                // Add new member
+                memberRecords.push({
+                    memberId: memberId,
+                    fullName: fullName,
+                    capital: capital,
+                    dateAdded: dateAdded,
+                    dateCreated: new Date().toISOString().split('T')[0]
+                });
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('memberRecords', JSON.stringify(memberRecords));
+            
+            showNotification('Member added successfully!', 'success');
+            
+            // Refresh the records table and summary
+            loadMemberRecords();
+            updateMemberSummary();
+            
+            // Reset form for next member
+            newMemberForm();
+        }
+        
+        // Load member records
+        function loadMemberRecords() {
+            const memberRecords = JSON.parse(localStorage.getItem('memberRecords')) || [];
+            const tbody = document.getElementById('membersTableBody');
+            tbody.innerHTML = '';
+            
+            memberRecords.forEach(member => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${member.memberId}</td>
+                    <td>${member.fullName}</td>
+                    <td>₱${member.capital.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                    <td>${new Date(member.dateAdded).toLocaleDateString()}</td>
+                    <td>
+                        <button onclick="editMember('${member.memberId}')" class="btn btn-sm btn-outline">Edit</button>
+                        <button onclick="deleteMember('${member.memberId}')" class="btn btn-sm btn-danger">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Edit member
+        function editMember(memberId) {
+            const memberRecords = JSON.parse(localStorage.getItem('memberRecords')) || [];
+            const member = memberRecords.find(m => m.memberId === memberId);
+            
+            if (member) {
+                // Populate form with member data
+                document.getElementById('memberId').value = member.memberId;
+                document.getElementById('fullName').value = member.fullName;
+                document.getElementById('capital').value = member.capital;
+                document.getElementById('dateAdded').value = member.dateAdded;
+                
+                // Scroll to form
+                document.getElementById('membership').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('fullName').focus();
+                
+                showNotification('Member loaded for editing', 'info');
+            }
+        }
+        
+        // Delete member
+        function deleteMember(memberId) {
+            if (confirm('Are you sure you want to delete this member record?')) {
+                let memberRecords = JSON.parse(localStorage.getItem('memberRecords')) || [];
+                memberRecords = memberRecords.filter(member => member.memberId !== memberId);
+                localStorage.setItem('memberRecords', JSON.stringify(memberRecords));
+                loadMemberRecords();
+                updateMemberSummary();
+                showNotification('Member deleted successfully!', 'success');
+            }
+        }
+        
+        // Search members
+        function searchMembers() {
+            const searchTerm = document.getElementById('memberSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#membersTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Update member summary statistics
+        function updateMemberSummary() {
+            const memberRecords = JSON.parse(localStorage.getItem('memberRecords')) || [];
+            const totalMembers = memberRecords.length;
+            const totalCapital = memberRecords.reduce((sum, member) => sum + member.capital, 0);
+            const avgCapital = totalMembers > 0 ? totalCapital / totalMembers : 0;
+            
+            document.getElementById('totalMembers').textContent = totalMembers.toLocaleString();
+            document.getElementById('totalCapital').textContent = '₱' + totalCapital.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('avgCapital').textContent = '₱' + avgCapital.toLocaleString('en-PH', {minimumFractionDigits: 2});
+        }
+        
+        // Export members to CSV
+        function exportMembers() {
+            const memberRecords = JSON.parse(localStorage.getItem('memberRecords')) || [];
+            
+            if (memberRecords.length === 0) {
+                showNotification('No member records to export', 'warning');
+                return;
+            }
+            
+            // Create CSV content
+            const headers = ['Member ID', 'Full Name', 'Capital', 'Date Added'];
+            const csvContent = [
+                headers.join(','),
+                ...memberRecords.map(member => [
+                    member.memberId,
+                    `"${member.fullName}"`,
+                    member.capital,
+                    member.dateAdded
+                ].join(','))
+            ].join('\n');
+            
+            // Download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'member_records_' + new Date().toISOString().split('T')[0] + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('Member records exported successfully!', 'success');
+        }
+        
+        // Clear member database
+        function clearMemberDatabase() {
+            if (confirm('Are you sure you want to clear all member records? This action cannot be undone.')) {
+                localStorage.removeItem('memberRecords');
+                loadMemberRecords();
+                updateMemberSummary();
+                showNotification('All member records have been cleared!', 'success');
+            }
+        }
+        
+        // Payment Management Functions
+        let currentLoanRecord = null;
+        
+        // Set current date for payments
+        function setPaymentDate() {
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById('paymentDate')) {
+                document.getElementById('paymentDate').value = today;
+            }
+        }
+        
+        // Search borrower function
+        function searchBorrower() {
+            const searchTerm = document.getElementById('borrowerSearch').value.trim().toLowerCase();
+            
+            if (searchTerm.length < 2) {
+                document.getElementById('searchResults').style.display = 'none';
+                return;
+            }
+            
+            const loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            const matchingRecords = loanRecords.filter(record => 
+                record.borrowerName.toLowerCase().includes(searchTerm) ||
+                record.transactionId.toLowerCase().includes(searchTerm)
+            );
+            
+            displaySearchResults(matchingRecords);
+        }
+        
+        // Display search results
+        function displaySearchResults(records) {
+            const borrowerList = document.getElementById('borrowerList');
+            const searchResults = document.getElementById('searchResults');
+            
+            if (records.length === 0) {
+                borrowerList.innerHTML = '<p class="no-results">No borrowers found matching your search.</p>';
+                searchResults.style.display = 'block';
+                return;
+            }
+            
+            borrowerList.innerHTML = '';
+            records.forEach(record => {
+                const borrowerItem = document.createElement('div');
+                borrowerItem.className = 'borrower-item';
+                borrowerItem.innerHTML = `
+                    <div class="borrower-info">
+                        <h4>${record.borrowerName}</h4>
+                        <p>Transaction ID: ${record.transactionId}</p>
+                        <p>Loan Amount: ₱${record.loanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</p>
+                        <p>Date: ${new Date(record.transactionDate).toLocaleDateString()}</p>
+                    </div>
+                    <button onclick="selectBorrower('${record.transactionId}')" class="btn btn-primary btn-sm">Select</button>
+                `;
+                borrowerList.appendChild(borrowerItem);
+            });
+            
+            searchResults.style.display = 'block';
+        }
+        
+        // Select borrower and display loan details
+        function selectBorrower(transactionId) {
+            const loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            const loanRecord = loanRecords.find(record => record.transactionId === transactionId);
+            
+            if (!loanRecord) {
+                showNotification('Loan record not found', 'error');
+                return;
+            }
+            
+            currentLoanRecord = loanRecord;
+            displayLoanDetails(loanRecord);
+            loadPaymentHistory(transactionId);
+            
+            // Hide search results and show loan details
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('loanDetails').style.display = 'block';
+            document.getElementById('paymentForm').style.display = 'block';
+            document.getElementById('paymentHistory').style.display = 'block';
+            
+            setPaymentDate();
+        }
+        
+        // Display loan details
+        function displayLoanDetails(loanRecord) {
+            document.getElementById('displayTransactionId').textContent = loanRecord.transactionId;
+            document.getElementById('displayBorrowerName').textContent = loanRecord.borrowerName;
+            document.getElementById('displayLoanAmount').textContent = '₱' + loanRecord.loanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('displayTotalAmount').textContent = '₱' + loanRecord.totalAmount.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('displayInterestRate').textContent = loanRecord.interestRate.toFixed(2) + '%';
+            
+            updatePaymentStatus(loanRecord.transactionId);
+        }
+        
+        // Update payment status
+        function updatePaymentStatus(transactionId) {
+            const payments = getPaymentHistory(transactionId);
+            const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+            
+            // Calculate base new balance (simple: total amount - total paid)
+            const baseNewBalance = currentLoanRecord.totalAmount - totalPaid;
+            
+            // Calculate interest amount and total new balance (only if due date has passed)
+            let newBalance = Math.max(0, baseNewBalance);
+            let interestAmount = 0;
+            let totalNewBalance = newBalance;
+            let interestApplied = false;
+            
+            // Check if there's a due date set and if it has passed
+            if (currentLoanRecord.paymentDueDate) {
+                const dueDate = new Date(currentLoanRecord.paymentDueDate);
+                const today = new Date();
+                
+                // Only add interest starting from the day after the due date
+                const dayAfterDueDate = new Date(dueDate);
+                dayAfterDueDate.setDate(dayAfterDueDate.getDate() + 1);
+                
+                if (today >= dayAfterDueDate && baseNewBalance > 0) {
+                    interestAmount = baseNewBalance * (currentLoanRecord.interestRate / 100);
+                    totalNewBalance = baseNewBalance + interestAmount;
+                    interestApplied = true;
+                    
+                    console.log('Interest Applied:', {
+                        dueDate: dueDate.toLocaleDateString(),
+                        dayAfterDueDate: dayAfterDueDate.toLocaleDateString(),
+                        today: today.toLocaleDateString(),
+                        baseNewBalance: baseNewBalance,
+                        interestRate: currentLoanRecord.interestRate,
+                        interestAmount: interestAmount,
+                        totalNewBalance: totalNewBalance
+                    });
+                } else {
+                    console.log('No Interest Applied:', {
+                        hasDueDate: !!currentLoanRecord.paymentDueDate,
+                        dueDate: dueDate ? dueDate.toLocaleDateString() : 'None',
+                        dayAfterDueDate: dueDate ? dayAfterDueDate.toLocaleDateString() : 'None',
+                        today: today.toLocaleDateString(),
+                        isOverdue: today >= dayAfterDueDate,
+                        baseNewBalance: baseNewBalance
+                    });
+                }
+            } else {
+                console.log('No Due Date Set - No Interest Applied');
+            }
+            
+            // Note: New balance shows base amount, Total New Balance shows amount with interest if applicable
+            
+            // Update display elements
+            document.getElementById('totalPaid').textContent = '₱' + totalPaid.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('remainingBalance').textContent = '₱' + newBalance.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('interestAmount').textContent = '₱' + interestAmount.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            document.getElementById('totalNewBalance').textContent = '₱' + totalNewBalance.toLocaleString('en-PH', {minimumFractionDigits: 2});
+            
+            // Update due date display
+            updateDueDateDisplay();
+        }
+        
+        // Due Date Management Functions
+        function updateDueDateDisplay() {
+            const dueDateElement = document.getElementById('paymentDueDate');
+            const remainingBalanceElement = document.getElementById('remainingBalance');
+            const interestAmountElement = document.getElementById('interestAmount');
+            const totalNewBalanceElement = document.getElementById('totalNewBalance');
+            
+            if (currentLoanRecord && currentLoanRecord.paymentDueDate) {
+                const dueDate = new Date(currentLoanRecord.paymentDueDate);
+                const today = new Date();
+                const dayAfterDueDate = new Date(dueDate);
+                dayAfterDueDate.setDate(dayAfterDueDate.getDate() + 1);
+                const isOverdue = today >= dayAfterDueDate;
+                
+                dueDateElement.textContent = dueDate.toLocaleDateString();
+                dueDateElement.style.color = isOverdue ? '#ef4444' : '#2563eb';
+                dueDateElement.title = isOverdue ? 'OVERDUE - Interest is being charged from the day after due date!' : 'Due Date - Interest will be charged starting tomorrow if unpaid';
+                
+                // Update the labels to show when interest is included
+                const remainingBalanceLabel = remainingBalanceElement.nextElementSibling;
+                const interestAmountLabel = interestAmountElement.nextElementSibling;
+                const totalNewBalanceLabel = totalNewBalanceElement.nextElementSibling;
+                
+                if (isOverdue) {
+                    // Highlight all fields when overdue
+                    remainingBalanceLabel.textContent = 'New Balance (Base)';
+                    remainingBalanceLabel.style.color = '#374151';
+                    remainingBalanceLabel.style.fontWeight = 'normal';
+                    
+                    interestAmountLabel.textContent = 'Interest Amount (Charged)';
+                    interestAmountLabel.style.color = '#ef4444';
+                    interestAmountLabel.style.fontWeight = 'bold';
+                    
+                    totalNewBalanceLabel.textContent = 'Total New Balance (Base + Interest)';
+                    totalNewBalanceLabel.style.color = '#ef4444';
+                    totalNewBalanceLabel.style.fontWeight = 'bold';
+                    
+                    // Highlight the interest amount in red
+                    interestAmountElement.style.color = '#ef4444';
+                    totalNewBalanceElement.style.color = '#ef4444';
+                } else {
+                    remainingBalanceLabel.textContent = 'New Balance';
+                    remainingBalanceLabel.style.color = '#374151';
+                    remainingBalanceLabel.style.fontWeight = 'normal';
+                    
+                    interestAmountLabel.textContent = 'Interest Amount';
+                    interestAmountLabel.style.color = '#6b7280';
+                    interestAmountLabel.style.fontWeight = 'normal';
+                    
+                    totalNewBalanceLabel.textContent = 'Total New Balance';
+                    totalNewBalanceLabel.style.color = '#374151';
+                    totalNewBalanceLabel.style.fontWeight = 'normal';
+                    
+                    // Reset colors
+                    interestAmountElement.style.color = '#2563eb';
+                    totalNewBalanceElement.style.color = '#2563eb';
+                }
+            } else {
+                dueDateElement.textContent = 'Not Set';
+                dueDateElement.style.color = '#6b7280';
+                dueDateElement.title = 'No due date set - No interest will be charged';
+                
+                // Reset the labels when no due date is set
+                const remainingBalanceLabel = remainingBalanceElement.nextElementSibling;
+                const interestAmountLabel = interestAmountElement.nextElementSibling;
+                const totalNewBalanceLabel = totalNewBalanceElement.nextElementSibling;
+                
+                remainingBalanceLabel.textContent = 'New Balance';
+                remainingBalanceLabel.style.color = '#374151';
+                remainingBalanceLabel.style.fontWeight = 'normal';
+                
+                interestAmountLabel.textContent = 'Interest Amount';
+                interestAmountLabel.style.color = '#6b7280';
+                interestAmountLabel.style.fontWeight = 'normal';
+                
+                totalNewBalanceLabel.textContent = 'Total New Balance';
+                totalNewBalanceLabel.style.color = '#6b7280';
+                totalNewBalanceLabel.style.fontWeight = 'normal';
+                
+                // Reset colors
+                interestAmountElement.style.color = '#2563eb';
+                totalNewBalanceElement.style.color = '#2563eb';
+            }
+        }
+        
+        function editDueDate() {
+            if (!currentLoanRecord) {
+                showNotification('Please select a borrower first', 'warning');
+                return;
+            }
+            
+            // Set current due date in the input if it exists
+            const currentDueDate = currentLoanRecord.paymentDueDate || '';
+            document.getElementById('newDueDate').value = currentDueDate;
+            document.getElementById('dueDateNotes').value = currentLoanRecord.dueDateNotes || '';
+            
+            // Show modal
+            document.getElementById('editDueDateModal').style.display = 'block';
+        }
+        
+        function closeDueDateModal() {
+            document.getElementById('editDueDateModal').style.display = 'none';
+        }
+        
+        function saveDueDate() {
+            const newDueDateValue = document.getElementById('newDueDate').value;
+            const notes = document.getElementById('dueDateNotes').value.trim();
+            
+            if (!newDueDateValue) {
+                showNotification('Please select a due date', 'warning');
+                return;
+            }
+            
+            // Update the loan record with the new due date
+            currentLoanRecord.paymentDueDate = newDueDateValue;
+            currentLoanRecord.dueDateNotes = notes;
+            currentLoanRecord.dueDateUpdated = new Date().toISOString();
+            
+            // Update the loan record in storage
+            updateLoanRecordInStorage(currentLoanRecord);
+            
+            // Update the display
+            updateDueDateDisplay();
+            
+            // Close modal and show success message
+            closeDueDateModal();
+            showNotification('Payment due date updated successfully!', 'success');
+        }
+        
+        function clearDueDate() {
+            if (!currentLoanRecord) {
+                showNotification('Please select a borrower first', 'warning');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to clear the payment due date?')) {
+                // Clear the due date from the loan record
+                delete currentLoanRecord.paymentDueDate;
+                delete currentLoanRecord.dueDateNotes;
+                currentLoanRecord.dueDateCleared = new Date().toISOString();
+                
+                // Update the loan record in storage
+                updateLoanRecordInStorage(currentLoanRecord);
+                
+                // Update the display
+                updateDueDateDisplay();
+                
+                showNotification('Payment due date cleared successfully!', 'success');
+            }
+        }
+        
+        // Update loan record in localStorage
+        function updateLoanRecordInStorage(updatedRecord) {
+            let loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            const index = loanRecords.findIndex(record => record.transactionId === updatedRecord.transactionId);
+            
+            if (index !== -1) {
+                loanRecords[index] = updatedRecord;
+                localStorage.setItem('loanRecords', JSON.stringify(loanRecords));
+            }
+        }
+        
+        // Get payment history for a loan
+        function getPaymentHistory(transactionId) {
+            const allPayments = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+            return allPayments.filter(payment => payment.transactionId === transactionId);
+        }
+        
+        // Record payment
+        function recordPayment() {
+            if (!currentLoanRecord) {
+                showNotification('Please select a borrower first', 'warning');
+                return;
+            }
+            
+            const paymentDate = document.getElementById('paymentDate').value;
+            const paymentAmount = parseFloat(document.getElementById('paymentAmount').value);
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const paymentReference = document.getElementById('paymentReference').value.trim();
+            
+            if (!paymentDate || !paymentAmount || !paymentMethod) {
+                showNotification('Please fill in all required fields', 'warning');
+                return;
+            }
+            
+            if (paymentAmount <= 0) {
+                showNotification('Payment amount must be greater than zero', 'warning');
+                return;
+            }
+            
+            // Check if payment exceeds total new balance (including interest if applicable)
+            const payments = getPaymentHistory(currentLoanRecord.transactionId);
+            const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+            
+            // Calculate the total new balance (including interest if overdue)
+            let baseNewBalance = currentLoanRecord.totalAmount - totalPaid;
+            let totalNewBalanceForValidation = baseNewBalance;
+            
+            // Add interest if the day after due date has passed
+            if (currentLoanRecord.paymentDueDate) {
+                const dueDate = new Date(currentLoanRecord.paymentDueDate);
+                const today = new Date();
+                const dayAfterDueDate = new Date(dueDate);
+                dayAfterDueDate.setDate(dayAfterDueDate.getDate() + 1);
+                
+                if (today >= dayAfterDueDate && baseNewBalance > 0) {
+                    const interestAmount = baseNewBalance * (currentLoanRecord.interestRate / 100);
+                    totalNewBalanceForValidation = baseNewBalance + interestAmount;
+                }
+            }
+            
+            if (paymentAmount > totalNewBalanceForValidation) {
+                if (!confirm(`Payment amount (₱${paymentAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}) exceeds total new balance (₱${totalNewBalanceForValidation.toLocaleString('en-PH', {minimumFractionDigits: 2})}). Continue?`)) {
+                    return;
+                }
+            }
+            
+            // Create payment record
+            const paymentRecord = {
+                paymentId: 'PAY' + Date.now(),
+                transactionId: currentLoanRecord.transactionId,
+                borrowerName: currentLoanRecord.borrowerName,
+                paymentDate: paymentDate,
+                amount: paymentAmount,
+                method: paymentMethod,
+                reference: paymentReference,
+                balanceAfter: Math.max(0, totalNewBalanceForValidation - paymentAmount),
+                recordedDate: new Date().toISOString()
+            };
+            
+            // Save payment to localStorage
+            let allPayments = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+            allPayments.push(paymentRecord);
+            localStorage.setItem('paymentHistory', JSON.stringify(allPayments));
+            
+            showNotification('Payment recorded successfully!', 'success');
+            
+            // Refresh displays
+            updatePaymentStatus(currentLoanRecord.transactionId);
+            loadPaymentHistory(currentLoanRecord.transactionId);
+            clearPaymentForm();
+        }
+        
+        // Clear payment form
+        function clearPaymentForm() {
+            document.getElementById('paymentAmount').value = '';
+            document.getElementById('paymentMethod').value = '';
+            document.getElementById('paymentReference').value = '';
+            setPaymentDate();
+        }
+        
+        // Load and display payment history
+        function loadPaymentHistory(transactionId) {
+            const payments = getPaymentHistory(transactionId);
+            const tbody = document.getElementById('paymentHistoryBody');
+            tbody.innerHTML = '';
+            
+            if (payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-payments">No payments recorded yet</td></tr>';
+                return;
+            }
+            
+            payments.forEach((payment, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${new Date(payment.paymentDate).toLocaleDateString()}</td>
+                    <td>₱${payment.amount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                    <td>${payment.method.replace('_', ' ').toUpperCase()}</td>
+                    <td>${payment.reference || '-'}</td>
+                    <td>₱${payment.balanceAfter.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                    <td>
+                        <button onclick="deletePayment('${payment.paymentId}')" class="btn btn-sm btn-danger">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Delete payment record
+        function deletePayment(paymentId) {
+            if (confirm('Are you sure you want to delete this payment record?')) {
+                let allPayments = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+                allPayments = allPayments.filter(payment => payment.paymentId !== paymentId);
+                localStorage.setItem('paymentHistory', JSON.stringify(allPayments));
+                
+                showNotification('Payment record deleted successfully!', 'success');
+                
+                // Refresh displays
+                updatePaymentStatus(currentLoanRecord.transactionId);
+                loadPaymentHistory(currentLoanRecord.transactionId);
+            }
+        }
+        
+        // Generate Payment Summary
+        function generatePaymentSummary() {
+            if (!currentLoanRecord) {
+                showNotification('Please select a borrower first', 'warning');
+                return;
+            }
+            
+            const payments = getPaymentHistory(currentLoanRecord.transactionId);
+            const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+            const totalLoanAmount = currentLoanRecord.totalAmount;
+            const remainingBalance = totalLoanAmount - totalPaid;
+            
+            // Calculate payment statistics
+            const firstPaymentDate = payments.length > 0 ? new Date(Math.min(...payments.map(p => new Date(p.paymentDate)))) : null;
+            const lastPaymentDate = payments.length > 0 ? new Date(Math.max(...payments.map(p => new Date(p.paymentDate)))) : null;
+            
+            // Calculate payment methods breakdown
+            const paymentMethods = {};
+            payments.forEach(payment => {
+                const method = payment.method.replace('_', ' ').toUpperCase();
+                paymentMethods[method] = (paymentMethods[method] || 0) + payment.amount;
+            });
+            
+            // Generate summary HTML
+            const summaryHTML = `
+                <div class="summary-report">
+                    <div class="report-header">
+                        <h4>Payment Summary Report</h4>
+                        <p class="report-date">Generated on: ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    
+                    <div class="borrower-summary">
+                        <h5>Borrower Information</h5>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">Name:</span>
+                                <span class="value">${currentLoanRecord.borrowerName}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Transaction ID:</span>
+                                <span class="value">${currentLoanRecord.transactionId}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Loan Date:</span>
+                                <span class="value">${new Date(currentLoanRecord.transactionDate).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="loan-summary">
+                        <h5>Loan Summary</h5>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">Principal Amount:</span>
+                                <span class="value">₱${currentLoanRecord.loanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Interest Rate:</span>
+                                <span class="value">${currentLoanRecord.interestRate.toFixed(2)}%</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Total Interest:</span>
+                                <span class="value">₱${currentLoanRecord.totalInterest.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="summary-item highlight">
+                                <span class="label">Total Loan Amount:</span>
+                                <span class="value">₱${totalLoanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-summary-stats">
+                        <h5>Payment Statistics</h5>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">Total Payments Made:</span>
+                                <span class="value">${payments.length}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Total Amount Paid:</span>
+                                <span class="value">₱${totalPaid.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">New Balance:</span>
+                                <span class="value">₱${Math.max(0, remainingBalance).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Loan Progress:</span>
+                                <span class="value">${((totalPaid / totalLoanAmount) * 100).toFixed(1)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${firstPaymentDate ? `
+                    <div class="payment-timeline">
+                        <h5>Payment Timeline</h5>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">First Payment:</span>
+                                <span class="value">${firstPaymentDate.toLocaleDateString()}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Last Payment:</span>
+                                <span class="value">${lastPaymentDate.toLocaleDateString()}</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Payment Period:</span>
+                                <span class="value">${Math.ceil((lastPaymentDate - firstPaymentDate) / (1000 * 60 * 60 * 24))} days</span>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="payment-methods-breakdown">
+                        <h5>Payment Methods Breakdown</h5>
+                        <div class="methods-list">
+                            ${Object.entries(paymentMethods).map(([method, amount]) => `
+                                <div class="method-item">
+                                    <span class="method-name">${method}:</span>
+                                    <span class="method-amount">₱${amount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                                    <span class="method-percentage">(${((amount / totalPaid) * 100).toFixed(1)}%)</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="payment-history-summary">
+                        <h5>Payment History</h5>
+                        <div class="history-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Balance After</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${payments.map((payment, index) => `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${new Date(payment.paymentDate).toLocaleDateString()}</td>
+                                            <td>₱${payment.amount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                                            <td>${payment.method.replace('_', ' ').toUpperCase()}</td>
+                                            <td>₱${payment.balanceAfter.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('paymentSummaryContent').innerHTML = summaryHTML;
+            document.getElementById('paymentSummaryModal').style.display = 'block';
+        }
+        
+        // Close payment summary modal
+        function closePaymentSummary() {
+            document.getElementById('paymentSummaryModal').style.display = 'none';
+        }
+        
+        // Print payment summary
+        function printPaymentSummary() {
+            const summaryContent = document.getElementById('paymentSummaryContent').innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Payment Summary - ${currentLoanRecord.borrowerName}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            .summary-report { max-width: 800px; margin: 0 auto; }
+                            .report-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+                            .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+                            .summary-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
+                            .summary-item.highlight { background: #f0f9ff; padding: 10px; font-weight: bold; }
+                            .label { font-weight: 500; }
+                            .value { font-weight: 600; }
+                            h4, h5 { color: #333; margin: 20px 0 10px 0; }
+                            table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background: #f5f5f5; font-weight: 600; }
+                            .method-item { display: flex; justify-content: space-between; padding: 5px 0; }
+                            @media print { body { margin: 0; } }
+                        </style>
+                    </head>
+                    <body>
+                        ${summaryContent}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // Export payment summary as text (simulated PDF export)
+        function exportPaymentSummary() {
+            const borrowerName = currentLoanRecord.borrowerName.replace(/[^a-zA-Z0-9]/g, '_');
+            const date = new Date().toISOString().split('T')[0];
+            const filename = `Payment_Summary_${borrowerName}_${date}.txt`;
+            
+            const payments = getPaymentHistory(currentLoanRecord.transactionId);
+            const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+            const totalLoanAmount = currentLoanRecord.totalAmount;
+            const remainingBalance = totalLoanAmount - totalPaid;
+            
+            const summaryText = `
+PAYMENT SUMMARY REPORT
+Generated on: ${new Date().toLocaleDateString()}
+
+BORROWER INFORMATION
+Name: ${currentLoanRecord.borrowerName}
+Transaction ID: ${currentLoanRecord.transactionId}
+Loan Date: ${new Date(currentLoanRecord.transactionDate).toLocaleDateString()}
+
+LOAN SUMMARY
+Principal Amount: ₱${currentLoanRecord.loanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+Interest Rate: ${currentLoanRecord.interestRate.toFixed(2)}%
+Total Interest: ₱${currentLoanRecord.totalInterest.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+Total Loan Amount: ₱${totalLoanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+
+PAYMENT STATISTICS
+Total Payments Made: ${payments.length}
+Total Amount Paid: ₱${totalPaid.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+New Balance: ₱${Math.max(0, remainingBalance).toLocaleString('en-PH', {minimumFractionDigits: 2})}
+Loan Progress: ${((totalPaid / totalLoanAmount) * 100).toFixed(1)}%
+
+PAYMENT HISTORY
+${payments.map((payment, index) => 
+    `${index + 1}. ${new Date(payment.paymentDate).toLocaleDateString()} - ₱${payment.amount.toLocaleString('en-PH', {minimumFractionDigits: 2})} (${payment.method.replace('_', ' ').toUpperCase()}) - Balance: ₱${payment.balanceAfter.toLocaleString('en-PH', {minimumFractionDigits: 2})}`
+).join('\n')}
+            `;
+            
+            const blob = new Blob([summaryText], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('Payment summary exported successfully!', 'success');
+        }
+        
+        // Generate All Borrowers Report
+        function generateAllBorrowersReport() {
+            const loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            const allPayments = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+            
+            if (loanRecords.length === 0) {
+                showNotification('No loan records found', 'warning');
+                return;
+            }
+            
+            // Calculate statistics for each borrower
+            const borrowerStats = loanRecords.map(loan => {
+                const payments = allPayments.filter(payment => payment.transactionId === loan.transactionId);
+                const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+                const remainingBalance = loan.totalAmount - totalPaid;
+                const paymentProgress = (totalPaid / loan.totalAmount) * 100;
+                
+                // Calculate payment status
+                let status = 'Active';
+                if (remainingBalance <= 0) {
+                    status = 'Paid';
+                } else if (payments.length === 0) {
+                    status = 'No Payments';
+                } else {
+                    const lastPayment = payments.reduce((latest, payment) => 
+                        new Date(payment.paymentDate) > new Date(latest.paymentDate) ? payment : latest
+                    );
+                    const daysSinceLastPayment = Math.floor((new Date() - new Date(lastPayment.paymentDate)) / (1000 * 60 * 60 * 24));
+                    if (daysSinceLastPayment > 60) {
+                        status = 'Overdue';
+                    } else if (daysSinceLastPayment > 30) {
+                        status = 'Late';
+                    }
+                }
+                
+                return {
+                    ...loan,
+                    totalPaid,
+                    newBalance: Math.max(0, remainingBalance),
+                    paymentProgress,
+                    paymentsCount: payments.length,
+                    status,
+                    lastPaymentDate: payments.length > 0 ? 
+                        new Date(Math.max(...payments.map(p => new Date(p.paymentDate)))).toLocaleDateString() : 'None'
+                };
+            });
+            
+            // Calculate overall statistics
+            const totalLoans = borrowerStats.length;
+            const totalLoanAmount = borrowerStats.reduce((sum, loan) => sum + loan.loanAmount, 0);
+            const totalAmountWithInterest = borrowerStats.reduce((sum, loan) => sum + loan.totalAmount, 0);
+            const totalPaidAll = borrowerStats.reduce((sum, loan) => sum + loan.totalPaid, 0);
+            const totalNewAll = borrowerStats.reduce((sum, loan) => sum + loan.newBalance, 0);
+            const averageLoanAmount = totalLoanAmount / totalLoans;
+            const overallProgress = (totalPaidAll / totalAmountWithInterest) * 100;
+            
+            // Status breakdown
+            const statusBreakdown = borrowerStats.reduce((acc, loan) => {
+                acc[loan.status] = (acc[loan.status] || 0) + 1;
+                return acc;
+            }, {});
+            
+            // Sort borrowers by status and remaining balance
+            borrowerStats.sort((a, b) => {
+                const statusOrder = { 'Overdue': 0, 'Late': 1, 'No Payments': 2, 'Active': 3, 'Paid': 4 };
+                if (statusOrder[a.status] !== statusOrder[b.status]) {
+                    return statusOrder[a.status] - statusOrder[b.status];
+                }
+                return b.newBalance - a.newBalance;
+            });
+            
+            // Generate report HTML
+            const reportHTML = `
+                <div class="all-borrowers-report">
+                    <div class="report-header">
+                        <h4>All Borrowers Loan Status Report</h4>
+                        <p class="report-date">Generated on: ${new Date().toLocaleDateString()}</p>
+                    </div>
+                    
+                    <div class="overall-statistics">
+                        <h5>Overall Portfolio Statistics</h5>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number">${totalLoans}</div>
+                                <div class="stat-label">Total Loans</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">₱${totalLoanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</div>
+                                <div class="stat-label">Total Principal</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">₱${totalAmountWithInterest.toLocaleString('en-PH', {minimumFractionDigits: 2})}</div>
+                                <div class="stat-label">Total Amount (w/ Interest)</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">₱${totalPaidAll.toLocaleString('en-PH', {minimumFractionDigits: 2})}</div>
+                                <div class="stat-label">Total Collected</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">₱${totalNewAll.toLocaleString('en-PH', {minimumFractionDigits: 2})}</div>
+                                <div class="stat-label">Total Outstanding</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">${overallProgress.toFixed(1)}%</div>
+                                <div class="stat-label">Collection Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-breakdown">
+                        <h5>Loan Status Breakdown</h5>
+                        <div class="status-grid">
+                            ${Object.entries(statusBreakdown).map(([status, count]) => `
+                                <div class="status-item status-${status.toLowerCase().replace(' ', '-')}">
+                                    <div class="status-count">${count}</div>
+                                    <div class="status-name">${status}</div>
+                                    <div class="status-percentage">${((count / totalLoans) * 100).toFixed(1)}%</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="borrowers-table-section">
+                        <h5>Detailed Borrower Status</h5>
+                        <div class="table-wrapper">
+                            <table class="borrowers-table">
+                                <thead>
+                                    <tr>
+                                        <th>Borrower Name</th>
+                                        <th>Transaction ID</th>
+                                        <th>Loan Date</th>
+                                        <th>Principal</th>
+                                        <th>Total Amount</th>
+                                        <th>Total Paid</th>
+                                        <th>New Balance</th>
+                                        <th>Progress</th>
+                                        <th>Payments</th>
+                                        <th>Last Payment</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${borrowerStats.map(loan => `
+                                        <tr class="status-row-${loan.status.toLowerCase().replace(' ', '-')}">
+                                            <td class="borrower-name">${loan.borrowerName}</td>
+                                            <td>${loan.transactionId}</td>
+                                            <td>${new Date(loan.transactionDate).toLocaleDateString()}</td>
+                                            <td>₱${loan.loanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                                            <td>₱${loan.totalAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                                            <td>₱${loan.totalPaid.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                                            <td>₱${loan.newBalance.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                                            <td>
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill" style="width: ${loan.paymentProgress}%"></div>
+                                                    <span class="progress-text">${loan.paymentProgress.toFixed(1)}%</span>
+                                                </div>
+                                            </td>
+                                            <td>${loan.paymentsCount}</td>
+                                            <td>${loan.lastPaymentDate}</td>
+                                            <td><span class="status-badge status-${loan.status.toLowerCase().replace(' ', '-')}">${loan.status}</span></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-insights">
+                        <h5>Key Insights</h5>
+                        <div class="insights-grid">
+                            <div class="insight-item">
+                                <strong>Average Loan Amount:</strong> ₱${averageLoanAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                            </div>
+                            <div class="insight-item">
+                                <strong>Collection Efficiency:</strong> ${overallProgress.toFixed(1)}% of total amount collected
+                            </div>
+                            <div class="insight-item">
+                                <strong>Active Loans:</strong> ${(statusBreakdown['Active'] || 0) + (statusBreakdown['Late'] || 0) + (statusBreakdown['Overdue'] || 0) + (statusBreakdown['No Payments'] || 0)} loans still outstanding
+                            </div>
+                            <div class="insight-item">
+                                <strong>Completed Loans:</strong> ${statusBreakdown['Paid'] || 0} loans fully paid
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('allBorrowersContent').innerHTML = reportHTML;
+            document.getElementById('allBorrowersModal').style.display = 'block';
+        }
+        
+        // Close all borrowers report modal
+        function closeAllBorrowersReport() {
+            document.getElementById('allBorrowersModal').style.display = 'none';
+        }
+        
+        // Print all borrowers report
+        function printAllBorrowersReport() {
+            const reportContent = document.getElementById('allBorrowersContent').innerHTML;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>All Borrowers Loan Status Report</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; font-size: 12px; }
+                            .all-borrowers-report { max-width: 100%; }
+                            .report-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+                            .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+                            .stat-card { text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+                            .stat-number { font-size: 16px; font-weight: bold; color: #2563eb; }
+                            .stat-label { font-size: 10px; color: #666; margin-top: 5px; }
+                            .status-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+                            .status-item { text-align: center; padding: 10px; border-radius: 5px; }
+                            .status-count { font-size: 18px; font-weight: bold; }
+                            .status-name { font-size: 10px; margin: 5px 0; }
+                            .borrowers-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+                            .borrowers-table th, .borrowers-table td { border: 1px solid #ddd; padding: 5px; text-align: left; }
+                            .borrowers-table th { background: #f5f5f5; font-weight: bold; }
+                            .progress-bar { width: 60px; height: 15px; background: #e5e7eb; border-radius: 10px; position: relative; }
+                            .progress-fill { height: 100%; background: #10b981; border-radius: 10px; }
+                            .progress-text { position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 8px; line-height: 15px; }
+                            .status-badge { padding: 2px 6px; border-radius: 3px; font-size: 8px; font-weight: bold; }
+                            .status-paid { background: #dcfce7; color: #166534; }
+                            .status-active { background: #dbeafe; color: #1d4ed8; }
+                            .status-late { background: #fef3c7; color: #92400e; }
+                            .status-overdue { background: #fecaca; color: #991b1b; }
+                            .status-no-payments { background: #f3f4f6; color: #374151; }
+                            h4, h5 { color: #333; margin: 20px 0 10px 0; }
+                            .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+                            .insight-item { padding: 10px; background: #f9fafb; border-radius: 5px; }
+                            @media print { body { margin: 0; font-size: 10px; } }
+                        </style>
+                    </head>
+                    <body>
+                        ${reportContent}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // Export all borrowers report as CSV
+        function exportAllBorrowersReport() {
+            const loanRecords = JSON.parse(localStorage.getItem('loanRecords')) || [];
+            const allPayments = JSON.parse(localStorage.getItem('paymentHistory')) || [];
+            
+            if (loanRecords.length === 0) {
+                showNotification('No loan records to export', 'warning');
+                return;
+            }
+            
+            // Prepare CSV data
+            const csvData = loanRecords.map(loan => {
+                const payments = allPayments.filter(payment => payment.transactionId === loan.transactionId);
+                const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+                const newBalance = Math.max(0, loan.totalAmount - totalPaid);
+                const paymentProgress = ((totalPaid / loan.totalAmount) * 100).toFixed(1);
+                
+                let status = 'Active';
+                if (remainingBalance <= 0) {
+                    status = 'Paid';
+                } else if (payments.length === 0) {
+                    status = 'No Payments';
+                } else {
+                    const lastPayment = payments.reduce((latest, payment) => 
+                        new Date(payment.paymentDate) > new Date(latest.paymentDate) ? payment : latest
+                    );
+                    const daysSinceLastPayment = Math.floor((new Date() - new Date(lastPayment.paymentDate)) / (1000 * 60 * 60 * 24));
+                    if (daysSinceLastPayment > 60) {
+                        status = 'Overdue';
+                    } else if (daysSinceLastPayment > 30) {
+                        status = 'Late';
+                    }
+                }
+                
+                const lastPaymentDate = payments.length > 0 ? 
+                    new Date(Math.max(...payments.map(p => new Date(p.paymentDate)))).toLocaleDateString() : 'None';
+                
+                return [
+                    loan.borrowerName,
+                    loan.transactionId,
+                    new Date(loan.transactionDate).toLocaleDateString(),
+                    loan.loanAmount.toFixed(2),
+                    loan.totalAmount.toFixed(2),
+                    totalPaid.toFixed(2),
+                    newBalance.toFixed(2),
+                    paymentProgress + '%',
+                    payments.length,
+                    lastPaymentDate,
+                    status
+                ];
+            });
+            
+            const headers = [
+                'Borrower Name', 'Transaction ID', 'Loan Date', 'Principal Amount', 
+                'Total Amount', 'Total Paid', 'New Balance', 'Progress', 
+                'Payment Count', 'Last Payment Date', 'Status'
+            ];
+            
+            const csvContent = [
+                headers.join(','),
+                ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `All_Borrowers_Report_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification('All borrowers report exported successfully!', 'success');
+        }
+        
+        function clearDatabase() {
+            if (confirm('Are you sure you want to clear all loan records? This action cannot be undone.')) {
+                localStorage.removeItem('loanRecords');
+                loadLoanRecords();
+                showNotification('All records have been cleared!', 'success');
+            }
+        }
+    </script>
+</body>
+</html>
